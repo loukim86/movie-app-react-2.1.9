@@ -19,11 +19,6 @@
   overflow-y: auto;
 }
 
-.spinner {
-  align-self: center;
-  margin-top: 60px;
-}
-
 .no-data {
   text-align: center;
 }
