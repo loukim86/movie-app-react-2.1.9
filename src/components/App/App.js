@@ -1,78 +1,69 @@
-import React, { Component } from 'react';
-import { Layout, Spin } from 'antd';
+import React, { useState, useEffect } from 'react'
+import { Layout } from 'antd'
 
-import MovieService from '../../services/MovieService';
-import MovieCard from '../MovieCard/MovieCard';
+import MovieService from '../../services/MovieService'
+import MovieCard from '../MovieCard/MovieCard'
 
-import './App.css';
+import './App.css'
 
-const { Content } = Layout;
+const { Content } = Layout
 
-export default class App extends Component {
-  state = {
-    movies: [],
-    loading: true,
-    error: null,
-  };
+const App = () => {
+  const [movies, setMovies] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  componentDidMount() {
-    this.showAllMovies();
-  }
+  useEffect(() => {
+    const showAllMovies = async (pageNumber) => {
+      const movieService = new MovieService()
+      try {
+        const results = await movieService.getAllMovies(pageNumber)
 
-  cutOffDescription = (text) => {
-    text = text.trim();
-    let words = text.split(' ');
-    return words.length > 30 ? words.slice(0, 30).join(' ') + '...' : text;
-  };
-
-  showAllMovies = (pageNumber) => {
-    const movieService = new MovieService();
-    movieService.getAllMovies(pageNumber).then((results) => {
-      if (results instanceof Error) {
-        this.setState({
-          error: results,
-          loading: false,
-        });
-      } else {
-        const movies = results.map((movie) => ({
+        const updatedMovies = results.map((movie) => ({
           id: movie.id,
           title: movie.title,
           poster: movie.poster_path,
-          overview: this.cutOffDescription(movie.overview),
+          overview: cutOffDescription(movie.overview),
           releaseDate: movie.release_date,
-        }));
-        const totalMovies = results.length;
-        this.setState({
-          movies,
-          loading: false,
-          error: null,
-          totalMovies,
-        });
+        }))
+
+        setMovies(updatedMovies)
+        setLoading(false)
+        setError(null)
+      } catch (error) {
+        setError(error)
+        setLoading(false)
       }
-    });
-  };
+    }
 
-  render() {
-    const { loading, movies, error } = this.state;
+    showAllMovies()
+  }, [])
 
-    return (
-      <Layout className="layout">
+  const cutOffDescription = (text) => {
+    text = text.trim()
+    let words = text.split(' ')
+    return words.length > 30 ? words.slice(0, 30).join(' ') + '...' : text
+  }
+
+  return (
+    <Layout className="layout">
+      <Content className="content-all-movies movie-card-panel">
         {loading ? (
-          <Content className="spinner">
-            <Spin tip="Loading" size="large">
-              <div className="spinner-content" />
-            </Spin>
-          </Content>
+          <div className="loading">Loading...</div>
         ) : (
-          <Content className="content-all-movies movie-card-panel">
-            {error ? null : movies.length === 0 ? (
+          <>
+            {error ? (
+              <h1 className="no-data">Error loading data</h1>
+            ) : movies.length === 0 ? (
               <h1 className="no-data">No Data Found</h1>
             ) : (
               movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)
             )}
-          </Content>
+          </>
         )}
-      </Layout>
-    );
-  }
+      </Content>
+    </Layout>
+  )
 }
+
+export default App
