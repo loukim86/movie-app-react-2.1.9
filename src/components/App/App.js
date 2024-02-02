@@ -14,10 +14,10 @@ const App = () => {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    const showAllMovies = async (pageNumber) => {
+    const searchMovies = async (query) => {
       const movieService = new MovieService()
       try {
-        const results = await movieService.getAllMovies(pageNumber)
+        const results = await movieService.searchMovies(query)
 
         const updatedMovies = results.map((movie) => ({
           id: movie.id,
@@ -36,7 +36,7 @@ const App = () => {
       }
     }
 
-    showAllMovies()
+    searchMovies('return') 
   }, [])
 
   const cutOffDescription = (text) => {
