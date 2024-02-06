@@ -13,8 +13,7 @@ export default class MovieService {
     },
     withCredentials: true,
   }
-  _apiKey = '41e75f40f80eee6c9bd1d10f253ce56b'
-
+  
   async searchMovies(query) {
     try {
       const searchUrl = `${this._searchUrl}?language=en-US&page=1&query=${query}&api_key=${this._apiKey}&include_adult=false`
